@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giles VPN GUI · Screenshots</title>
+  <meta name="theme-color" content="#0a0c12" />
+  <style>
+    :root {
+      --bg-0:#0a0c12; --bg-1:#11141d; --bg-2:#161a25; --bg-3:#1e2331;
+      --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.16);
+      --text-0:#f5f6f8; --text-1:#c7cad3; --text-2:#8b90a0;
+      --accent:#ffb84a; --accent-2:#ff8a3d;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      background:
+        radial-gradient(1200px 600px at 80% -10%,rgba(255,184,74,.10),transparent 60%),
+        radial-gradient(900px 500px at 0% 30%,rgba(80,120,255,.08),transparent 60%),
+        var(--bg-0);
+      color:var(--text-0);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+      min-height:100vh;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:var(--accent);text-decoration:none}
+    a:hover{color:var(--accent-2)}
+    .nav{
+      position:sticky;top:0;z-index:50;
+      backdrop-filter:blur(14px) saturate(1.2);
+      -webkit-backdrop-filter:blur(14px) saturate(1.2);
+      background:rgba(10,12,18,.65);
+      border-bottom:1px solid var(--line);
+    }
+    .nav-inner{
+      max-width:1280px;margin:0 auto;padding:0 24px;
+      display:flex;align-items:center;justify-content:space-between;height:64px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .brand-logo{
+      width:32px;height:32px;display:grid;place-items:center;
+      border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:#1a1300;font-weight:900;
+      box-shadow:0 6px 16px rgba(255,184,74,.35);
+    }
+    .nav-links{display:flex;gap:24px;list-style:none;margin:0;padding:0}
+    .nav-links a{color:var(--text-1);font-size:14px}
+    .nav-links a:hover{color:var(--text-0)}
+    .nav-cta{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 16px;background:var(--accent);color:#1a1300;
+      border-radius:999px;font-weight:600;font-size:13px;
+    }
+    .container{max-width:1280px;margin:0 auto;padding:24px}
+
+    .head{margin:8px 0 32px}
+    .head h1{margin:0 0 8px;font-size:32px;letter-spacing:-.5px}
+    .head p{margin:0;color:var(--text-2);font-size:14px}
+    .crumbs{color:var(--text-2);font-size:12px;margin-bottom:12px}
+    .crumbs a{color:var(--text-2)}
+    .crumbs a:hover{color:var(--text-0)}
+
+    /* Masonry-ish responsive grid using CSS columns */
+    .gallery{
+      column-count:4;
+      column-gap:16px;
+    }
+    @media (max-width:1100px){.gallery{column-count:3}}
+    @media (max-width:760px){.gallery{column-count:2}}
+    @media (max-width:480px){.gallery{column-count:2}}
+    .shot{
+      break-inside:avoid;
+      margin:0 0 16px;
+      background:var(--bg-2);
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      cursor:pointer;
+      transition:transform .15s ease,border-color .15s ease;
+    }
+    .shot:hover{transform:translateY(-2px);border-color:var(--line-strong)}
+    .shot img{display:block;width:100%;height:auto}
+    .shot .cap{
+      padding:10px 14px;font-size:12px;color:var(--text-2);
+      border-top:1px solid var(--line);
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .shot .cap b{color:var(--text-1);font-weight:600}
+
+    /* Lightbox */
+    .lightbox{
+      position:fixed;inset:0;z-index:100;
+      background:rgba(0,0,0,.85);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      display:none;
+      align-items:center;justify-content:center;
+      padding:24px;
+    }
+    .lightbox.open{display:flex}
+    .lightbox img{
+      max-width:96vw;max-height:92vh;
+      object-fit:contain;
+      border-radius:10px;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+    }
+    .lb-close{
+      position:absolute;top:18px;right:18px;
+      width:42px;height:42px;border-radius:50%;
+      background:rgba(255,255,255,.10);color:#fff;border:none;
+      font-size:20px;cursor:pointer;
+      display:grid;place-items:center;
+    }
+    .lb-close:hover{background:rgba(255,255,255,.20)}
+    .lb-nav{
+      position:absolute;top:50%;transform:translateY(-50%);
+      width:48px;height:48px;border-radius:50%;
+      background:rgba(255,255,255,.10);color:#fff;border:none;
+      font-size:22px;cursor:pointer;display:grid;place-items:center;
+    }
+    .lb-nav:hover{background:rgba(255,255,255,.20)}
+    .lb-prev{left:24px}
+    .lb-next{right:24px}
+    .lb-info{
+      position:absolute;left:24px;bottom:24px;
+      padding:10px 16px;background:rgba(0,0,0,.55);
+      color:#fff;font-size:13px;border-radius:999px;
+      backdrop-filter:blur(8px);
+    }
+    .lb-info b{color:var(--accent);font-weight:700}
+
+    /* Hint bar */
+    .hint{
+      margin:8px 0 24px;padding:10px 16px;
+      background:var(--bg-2);border:1px solid var(--line);
+      border-radius:10px;color:var(--text-2);font-size:13px;
+      display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    }
+    .hint kbd{
+      display:inline-block;padding:2px 8px;
+      background:var(--bg-3);border:1px solid var(--line-strong);
+      border-radius:6px;color:var(--text-1);font-family:inherit;font-size:12px;
+    }
+
+    footer{
+      margin-top:48px;padding:24px;text-align:center;color:var(--text-2);
+      font-size:12px;border-top:1px solid var(--line);
+    }
+  </style>
+
+  <!-- Desktop screenshot styling (mac / win) -->
+  <style id="desktop-style">
+    /* Override gallery: single-column scrollable list */
+    .gallery {
+      column-count: unset;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+    .shot {
+      width: 100%;
+      max-width: 960px;
+      margin: 0;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.45);
+    }
+    /* Show Windows bar, hide macOS bar */
+    .shot .mac-bar { display: none; }
+    .shot .win-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--line);
+      color: var(--text-2);
+      font-size: 12px;
+    }
+    .shot .win-bar .win-icon {
+      width: 14px; height: 14px; opacity: .6;
+    }
+    .shot img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 695px;
+      object-fit: cover;
+      object-position: top;
+    }
+    .shot .cap {
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--text-2);
+      background: transparent;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .shot .cap b { color: var(--text-1); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../" class="brand">
+      <span class="brand-logo">🪔</span>
+      <span>Giles VPN GUI</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html#platforms">← 返回宣传页</a></li>
+      <li><a href="../README.md">README</a></li>
+    </ul>
+    <a href="https://t.me/tallotang" target="_blank" rel="noopener" class="nav-cta">Contact →</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="head">
+    <div class="crumbs"><a href="../">Giles VPN GUI</a> / <span data-platform>platform</span></div>
+    <h1><span data-platform>Platform</span> 截图预览</h1>
+    <p><span data-count>0</span> 张截图 · 点击任意图片可放大查看，左右方向键可切换，ESC 退出。</p>
+  </div>
+
+  <div class="hint">
+    <span>快捷键：</span>
+    <span><kbd>←</kbd> / <kbd>→</kbd> 切换</span>
+    <span><kbd>ESC</kbd> 关闭</span>
+    <span><kbd>F</kbd> 全屏</span>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+</main>
+
+<footer>© Giles VPN GUI · Screenshots are UI demo data only.</footer>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot preview">
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous">‹</button>
+  <img id="lbImg" alt="" />
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Next">›</button>
+  <div class="lb-info"><b id="lbIdx">0</b> / <span id="lbTotal">0</span></div>
+</div>
+
+<script>
+  /* --------------------------------------------------------------
+     Platform metadata (each <platform>/index.html copies this block
+     and overrides the platform info)
+  -------------------------------------------------------------- */
+  const PLATFORM_META = {
+    id: "win",                     // folder name
+    name: "Windows",               // display name
+    order: ["android","ios","mac","win"]
+  };
+
+  const PRELOAD_LIST = []; // filled by platform-specific override (optional)
+
+  /* --------------------------------------------------------------
+     Image file enumeration.
+     We list common image extensions; missing files are filtered out
+     using an <img onerror> fallback, so this is safe across platforms.
+  -------------------------------------------------------------- */
+  const IMG_EXT = ["png","jpg","jpeg","webp"];
+  const NUMERIC_RE = /^(\d+)/;
+
+  function listImages() {
+    // The author already renamed files to 1.png, 2.jpg, ... but we still
+    // support IMG_*.PNG legacy naming just in case.
+    // Strategy: try every plausible filename; we discover what's actually
+    // present via the onerror filter.
+
+    // 1) numeric sequence 1..40 (covers all current files)
+    const cand = [];
+    for (let i = 1; i <= 40; i++) {
+      for (const ext of IMG_EXT) {
+        cand.push({ n: i, file: `${i}.${ext}` });
+      }
+    }
+
+    // 2) legacy IMG_XXXX.PNG (case-insensitive)
+    for (let i = 4000; i <= 9999; i++) {
+      cand.push({ n: i, file: `IMG_${i}.PNG` });
+    }
+
+    return cand;
+  }
+
+  function platformName() { return PLATFORM_META.id; }
+
+  /* --------------------------------------------------------------
+     Render
+  -------------------------------------------------------------- */
+  const gallery = document.getElementById("gallery");
+  const lightbox = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lbImg");
+  const lbIdx = document.getElementById("lbIdx");
+  const lbTotal = document.getElementById("lbTotal");
+
+  // Fill platform name
+  document.querySelectorAll("[data-platform]").forEach(el => {
+    el.textContent = PLATFORM_META.name;
+  });
+  document.title = `Giles VPN GUI · Screenshots · ${PLATFORM_META.name}`;
+
+  const cands = listImages();
+  const found = [];
+
+  function addShot(file, n) {
+    const url = `${platformName()}/${file}`;
+    const card = document.createElement("div");
+    card.className = "shot";
+    card.dataset.idx = String(found.length);
+    // Windows 11 window chrome
+    const winBar = `
+      <div class="win-bar">
+        <svg class="win-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 5v14h7v-7h5V5H3zm8 0h7v7h-4v3h4V5h-7z"/>
+        </svg>
+        <span>Giles VPN GUI — ${PLATFORM_META.name}</span>
+      </div>`;
+    card.innerHTML = `
+      ${winBar}
+      <img src="${url}" alt="${PLATFORM_META.name} screenshot ${n}"
+           loading="lazy" />
+      <div class="cap"><b>${PLATFORM_META.name}</b><span>#${n}</span></div>
+    `;
+    card.addEventListener("click", () => openLightbox(parseInt(card.dataset.idx, 10)));
+    gallery.appendChild(card);
+    found.push({ url, n, card });
+  }
+
+  cands.forEach((c, i) => {
+    // Probe via Image() — sequential per slot to keep ordering stable
+    const probe = new Image();
+    probe.onload = () => {
+      addShot(c.file, c.n);
+      document.getElementById("gallery").dataset.count = found.length;
+      document.querySelector("[data-count]").textContent = String(found.length);
+    };
+    probe.onerror = () => { /* skip */ };
+    probe.src = `${platformName()}/${c.file}`;
+  });
+
+  /* --------------------------------------------------------------
+     Lightbox
+  -------------------------------------------------------------- */
+  let cur = 0;
+  function openLightbox(i) {
+    if (!found.length) return;
+    cur = Math.max(0, Math.min(found.length - 1, i));
+    lbImg.src = found[cur].url;
+    lbIdx.textContent = String(cur + 1);
+    lbTotal.textContent = String(found.length);
+    lightbox.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeLightbox() {
+    lightbox.classList.remove("open");
+    document.body.style.overflow = "";
+    lbImg.src = "";
+  }
+  function nav(delta) {
+    if (!found.length) return;
+    cur = (cur + delta + found.length) % found.length;
+    lbImg.src = found[cur].url;
+    lbIdx.textContent = String(cur + 1);
+  }
+
+  document.getElementById("lbClose").addEventListener("click", closeLightbox);
+  document.getElementById("lbPrev").addEventListener("click", () => nav(-1));
+  document.getElementById("lbNext").addEventListener("click", () => nav(+1));
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!lightbox.classList.contains("open")) return;
+    if (e.key === "Escape") closeLightbox();
+    else if (e.key === "ArrowLeft") nav(-1);
+    else if (e.key === "ArrowRight") nav(+1);
+    else if (e.key === "f" || e.key === "F") {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else lbImg.requestFullscreen?.();
+    }
+  });
+
+  /* Touch swipe support */
+  let touchX = null;
+  lightbox.addEventListener("touchstart", (e) => { touchX = e.touches[0].clientX; });
+  lightbox.addEventListener("touchend", (e) => {
+    if (touchX == null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 40) nav(dx > 0 ? -1 : +1);
+    touchX = null;
+  });
+</script>
+</body>
+</html>

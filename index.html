@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh-CN" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giles VPN GUI · Giles 客户端 · عميل Giles</title>
+  <meta name="description" content="Giles VPN GUI — 基于 Flutter + sing-box 的全平台 VPN 客户端，支持 Android / iOS / macOS / Windows 及 sing-box 全部协议。承接定制开发。Telegram @tallotang" />
+  <meta name="keywords" content="Giles VPN, Flutter VPN, sing-box client, custom VPN development, Giles客户端" />
+  <meta name="theme-color" content="#0b0d12" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Giles VPN GUI · Giles 客户端" />
+  <meta property="og:description" content="基于 Flutter + sing-box 的全平台 VPN 客户端，承接定制开发。" />
+
+  <style>
+    /* ==========================================================
+       Design tokens
+    ========================================================== */
+    :root {
+      --bg-0: #0a0c12;
+      --bg-1: #11141d;
+      --bg-2: #161a25;
+      --bg-3: #1e2331;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --text-0: #f5f6f8;
+      --text-1: #c7cad3;
+      --text-2: #8b90a0;
+      --accent: #ffb84a;       /* lamp-gold */
+      --accent-2: #ff8a3d;
+      --accent-soft: rgba(255, 184, 74, 0.14);
+      --good: #4ade80;
+      --shadow-1: 0 8px 24px rgba(0, 0, 0, 0.35);
+      --shadow-2: 0 20px 60px rgba(0, 0, 0, 0.45);
+      --radius-1: 10px;
+      --radius-2: 18px;
+      --radius-3: 28px;
+      --container: 1200px;
+      --font-zh: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+      --font-en: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --font-ar: "Noto Naskh Arabic", "Segoe UI", "Tahoma", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(255, 184, 74, 0.10), transparent 60%),
+        radial-gradient(900px 500px at 0% 30%, rgba(80, 120, 255, 0.08), transparent 60%),
+        var(--bg-0);
+      color: var(--text-0);
+      font-family: var(--font-en), var(--font-zh), sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    html[lang^="ar"] body { font-family: var(--font-ar), sans-serif; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-2); }
+    img { max-width: 100%; display: block; }
+
+    .container {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ==========================================================
+       Navigation
+    ========================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+      background: rgba(10, 12, 18, 0.65);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: var(--text-0);
+      letter-spacing: 0.3px;
+    }
+    .brand-logo {
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #1a1300;
+      font-weight: 900;
+      box-shadow: 0 6px 16px rgba(255, 184, 74, 0.35);
+    }
+    .brand small {
+      display: block;
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--text-2);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .nav-links {
+      display: flex; gap: 28px; align-items: center;
+      list-style: none; margin: 0; padding: 0;
+    }
+    .nav-links a {
+      color: var(--text-1);
+      font-size: 14px;
+    }
+    .nav-links a:hover { color: var(--text-0); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #1a1300;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 13px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(255, 184, 74, 0.35);
+      color: #1a1300;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .lang-switch button {
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: color .15s ease, background .15s ease;
+    }
+    .lang-switch button.active {
+      background: var(--accent);
+      color: #1a1300;
+    }
+
+    /* ==========================================================
+       Hero
+    ========================================================== */
+    .hero {
+      position: relative;
+      padding: 96px 0 80px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(600px 200px at 50% 0%, rgba(255, 184, 74, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(255, 184, 74, 0.25);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+    }
+    .eyebrow .dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+    }
+    h1.hero-title {
+      font-size: clamp(36px, 5.4vw, 64px);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin: 0 0 20px;
+    }
+    h1.hero-title .grad {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 60%, #ff5e7e 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text-1);
+      max-width: 560px;
+      margin: 0 0 36px;
+    }
+    .hero-ctas {
+      display: flex; gap: 14px; flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #1a1300;
+      box-shadow: 0 12px 30px rgba(255, 138, 61, 0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); color: #1a1300; }
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-0);
+      border-color: var(--line-strong);
+    }
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.08); color: var(--text-0); }
+
+    .hero-stats {
+      display: flex; gap: 28px;
+      margin-top: 48px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      max-width: 600px;
+    }
+    .stat-num {
+      font-size: 28px; font-weight: 800; color: var(--accent);
+    }
+    .stat-label {
+      font-size: 12px; color: var(--text-2);
+      text-transform: uppercase; letter-spacing: 1.2px;
+    }
+
+    /* Hero visual: floating device mosaic */
+    .hero-visual {
+      position: relative;
+      width: 100%;
+      max-width: 560px;
+      margin-left: auto;
+      aspect-ratio: 16 / 10;
+    }
+    .device {
+      position: absolute;
+      background: var(--bg-2);
+      border: 1px solid var(--line-strong);
+      box-shadow:
+        0 30px 60px -20px rgba(0, 0, 0, 0.6),
+        0 18px 36px -18px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+    .device img {
+      width: 100%; height: 100%; object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+    /* Main device: desktop (centered, primary focus) */
+    .device-mac {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      left: 0;
+      top: 0;
+      border-radius: 14px;
+      transform: none;
+      z-index: 1;
+    }
+    /* Floating phones hidden on desktop by default */
+    .device-ios,
+    .device-android {
+      display: none;
+    }
+    .device-glow {
+      position: absolute;
+      width: 70%; height: 70%;
+      left: 15%; top: 15%;
+      background: radial-gradient(circle, rgba(255, 184, 74, 0.32), transparent 70%);
+      filter: blur(50px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ==========================================================
+       Section base
+    ========================================================== */
+    section {
+      padding: 96px 0;
+      position: relative;
+    }
+    .section-head {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 56px;
+    }
+    .section-head .eyebrow { margin: 0 0 16px; }
+    h2 {
+      font-size: clamp(28px, 3.6vw, 44px);
+      line-height: 1.15;
+      margin: 0 0 16px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .section-head p {
+      font-size: 17px;
+      color: var(--text-1);
+      margin: 0;
+    }
+
+    /* ==========================================================
+       Platforms (4 tabs)
+    ========================================================== */
+    .tabs {
+      display: flex; gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .tab {
+      padding: 10px 18px;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--text-1);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all .15s ease;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: #1a1300;
+      border-color: var(--accent);
+    }
+    .tab:hover:not(.active) {
+      background: var(--bg-3);
+      color: var(--text-0);
+    }
+    .gallery {
+      display: grid;
+      gap: 20px;
+    }
+
+    /* ---- Generic shot base ---- */
+    .gallery .shot {
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-2);
+      transition: transform .2s ease, border-color .2s ease;
+      cursor: pointer;
+    }
+    .gallery .shot:hover {
+      transform: translateY(-4px);
+      border-color: var(--line-strong);
+    }
+    .gallery .shot img {
+      width: 100%;
+      display: block;
+    }
+    .gallery .shot .shot-cap {
+      padding: 14px 14px 16px;
+      font-size: 12px;
+      color: var(--text-2);
+      background: transparent;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+
+    .gallery.gallery-android {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 170px));
+      justify-content: center;
+    }
+    .gallery.gallery-android .shot {
+      position: relative;
+    }
+    .gallery.gallery-android .shot-img-wrap {
+      overflow: hidden;
+      border-radius: var(--radius-2);
+      max-height: 460px;
+    }
+    .gallery.gallery-android .shot-img-wrap img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1260 / 2844;   /* real ratio ≈ 0.443 */
+      object-fit: cover;
+      object-position: top;
+    }
+
+    /* ---- iOS: standard portrait (1242×2208, ratio ≈ 0.56) ---- */
+    .gallery.gallery-ios {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 180px));
+      justify-content: center;
+    }
+    .gallery.gallery-ios .shot {
+      position: relative;
+    }
+    .gallery.gallery-ios .shot-img-wrap {
+      overflow: hidden;
+      border-radius: var(--radius-2);
+      max-height: 460px;
+    }
+    .gallery.gallery-ios .shot-img-wrap img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1242 / 2208;   /* real ratio ≈ 0.5625 */
+      object-fit: cover;
+      object-position: top;
+    }
+
+    /* ---- macOS: landscape (1846×1346) — single-column window cards ---- */
+    .gallery.gallery-mac,
+    .gallery.gallery-win {
+      grid-template-columns: 1fr;
+      max-width: 960px;
+      margin: 0 auto;
+      gap: 28px;
+    }
+    .gallery.gallery-mac .shot,
+    .gallery.gallery-win .shot {
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.40);
+      background: var(--bg-2);
+    }
+    .gallery.gallery-mac .shot-body,
+    .gallery.gallery-win .shot-body {
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    /* Shared window chrome bar */
+    .gallery.gallery-mac .shot-bar,
+    .gallery.gallery-win .shot-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--line);
+      color: var(--text-2);
+      font-size: 12px;
+    }
+    .gallery.gallery-mac .shot img,
+    .gallery.gallery-win .shot img {
+      aspect-ratio: unset;
+      object-fit: cover;
+      object-position: top;
+    }
+    /* macOS: taller desktop UI */
+    .gallery.gallery-mac .shot img {
+      max-height: 700px;
+    }
+    /* Windows: slightly shorter to match 880×638 ratio */
+    .gallery.gallery-win .shot img {
+      max-height: 700px;
+    }
+    /* macOS traffic lights */
+    .gallery.gallery-mac .dot-red    { width:12px;height:12px;border-radius:50%;background:#ff5f57; }
+    .gallery.gallery-mac .dot-yellow { width:12px;height:12px;border-radius:50%;background:#febc2e; }
+    .gallery.gallery-mac .dot-green  { width:12px;height:12px;border-radius:50%;background:#28c840; }
+
+    /* ==========================================================
+       Features
+    ========================================================== */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .feature {
+      padding: 28px;
+      background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-2);
+      transition: border-color .15s ease, transform .15s ease;
+    }
+    .feature:hover {
+      border-color: var(--line-strong);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      display: grid; place-items: center;
+      background: var(--accent-soft);
+      border-radius: 12px;
+      color: var(--accent);
+      margin-bottom: 18px;
+      font-size: 20px;
+    }
+    .feature h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .feature p {
+      margin: 0;
+      color: var(--text-1);
+      font-size: 14px;
+    }
+
+    /* ==========================================================
+       Protocols
+    ========================================================== */
+    .protocols {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    .proto {
+      padding: 10px 18px;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+      transition: all .15s ease;
+    }
+    .proto:hover {
+      background: var(--accent-soft);
+      border-color: rgba(255, 184, 74, 0.4);
+      color: var(--accent);
+    }
+
+    /* ==========================================================
+       Custom dev
+    ========================================================== */
+    .dev-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .dev-card {
+      padding: 28px;
+      background: var(--bg-1);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-2);
+    }
+    .dev-card h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    .dev-card p {
+      margin: 0;
+      color: var(--text-1);
+      font-size: 14px;
+    }
+
+    /* ==========================================================
+       Pricing / CTA
+    ========================================================== */
+    .cta {
+      padding: 80px 24px;
+      background:
+        radial-gradient(800px 400px at 50% 0%, rgba(255, 184, 74, 0.15), transparent 70%),
+        var(--bg-1);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+    }
+    .cta h2 { margin-bottom: 16px; }
+    .cta p {
+      font-size: 17px;
+      color: var(--text-1);
+      max-width: 620px;
+      margin: 0 auto 32px;
+    }
+    .tg-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      background: var(--bg-2);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-2);
+      margin-top: 16px;
+    }
+    .tg-card .tg-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #29b6f6, #0288d1);
+      display: grid; place-items: center;
+      color: #fff; font-weight: 800; font-size: 20px;
+    }
+    .tg-card .tg-handle {
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .tg-card .tg-label {
+      font-size: 12px;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    /* ==========================================================
+       Footer
+    ========================================================== */
+    footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      color: var(--text-2);
+      font-size: 13px;
+    }
+    footer .brand { justify-content: center; margin-bottom: 16px; }
+
+    /* ==========================================================
+       Responsive
+    ========================================================== */
+    @media (max-width: 920px) {
+      .hero { padding: 64px 0 48px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero-visual { max-width: 480px; margin: 0 auto; }
+      .nav-links { display: none; }
+      .dev-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 20px; flex-wrap: wrap; }
+    }
+    @media (max-width: 520px) {
+      .hero-stats { gap: 16px; }
+      .stat-num { font-size: 22px; }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+      .hero-visual { max-width: 100%; }
+    }
+
+    /* ==========================================================
+       RTL (Arabic)
+    ========================================================== */
+    html[dir="rtl"] body { direction: rtl; }
+    html[dir="rtl"] .nav-links, html[dir="rtl"] .nav-inner, html[dir="rtl"] .hero-ctas,
+    html[dir="rtl"] .hero-stats, html[dir="rtl"] .tg-card { direction: rtl; }
+    html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] h4 { letter-spacing: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ===================== Navigation ===================== -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#top" class="brand">
+      <span class="brand-logo">🪔</span>
+      <span>
+        Giles VPN
+        <small data-i18n="brand.tag">GILES VPN GUI · Giles 客户端</small>
+      </span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#platforms" data-i18n="nav.platforms">平台预览</a></li>
+      <li><a href="#features" data-i18n="nav.features">核心特性</a></li>
+      <li><a href="#protocols" data-i18n="nav.protocols">协议</a></li>
+      <li><a href="#custom" data-i18n="nav.custom">定制开发</a></li>
+    </ul>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <div class="lang-switch" role="tablist" aria-label="Language">
+        <button data-lang-btn="zh-CN" class="active">中文</button>
+        <button data-lang-btn="en">EN</button>
+        <button data-lang-btn="ar">AR</button>
+      </div>
+      <a href="https://t.me/tallotang" target="_blank" rel="noopener" class="nav-cta">
+        <span data-i18n="nav.cta">商务洽谈</span> →
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== Hero ===================== -->
+<header class="hero" id="top">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">
+        <span class="dot"></span>
+        <span data-i18n="hero.eyebrow">Flutter · sing-box · 全平台</span>
+      </span>
+      <h1 class="hero-title">
+        <span data-i18n="hero.title.l1">一点即通的</span>
+        <span class="grad" data-i18n="hero.title.l2">跨端 VPN 体验</span>
+      </h1>
+      <p class="hero-sub" data-i18n="hero.sub">
+        基于 Flutter 跨端框架 + sing-box 内核，原生覆盖 Android、iOS、macOS、Windows，
+        支持 sing-box 全部协议。可深度定制、可交付源码、可上架分发的现代化代理客户端。
+      </p>
+      <div class="hero-ctas">
+        <a href="https://t.me/tallotang" target="_blank" rel="noopener" class="btn btn-primary">
+          <span data-i18n="hero.cta.primary">立即洽谈定制</span>
+        </a>
+        <a href="#platforms" class="btn btn-ghost">
+          <span data-i18n="hero.cta.secondary">查看界面预览</span>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">4</div>
+          <div class="stat-label" data-i18n="hero.stat1.lab">原生平台</div>
+        </div>
+        <div>
+          <div class="stat-num">11+</div>
+          <div class="stat-label" data-i18n="hero.stat2.lab">支持的协议</div>
+        </div>
+        <div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label" data-i18n="hero.stat3.lab">源码交付</div>
+        </div>
+        <div>
+          <div class="stat-num">24h</div>
+          <div class="stat-label" data-i18n="hero.stat4.lab">首响</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="device-glow"></div>
+      <div class="device device-mac">
+        <img src="mac/1.png" alt="macOS screenshot" onerror="this.style.display='none'" />
+      </div>
+      <div class="device device-ios">
+        <img src="ios/1.png" alt="iOS screenshot" onerror="this.style.display='none'" />
+      </div>
+      <div class="device device-android">
+        <img src="android/1.png" alt="Android screenshot" onerror="this.style.display='none'" />
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== Platforms ===================== -->
+<section id="platforms">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow"><span class="dot"></span><span data-i18n="sec.platforms.eyebrow">PLATFORM PREVIEW</span></span>
+      <h2 data-i18n="sec.platforms.title">四大平台，原生体验</h2>
+      <p data-i18n="sec.platforms.sub">一套 Flutter 代码，同时输出 Android、iOS、macOS、Windows 四端应用。</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-platform="android">Android</button>
+      <button class="tab" data-platform="ios">iOS</button>
+      <button class="tab" data-platform="mac">macOS</button>
+      <button class="tab" data-platform="win">Windows</button>
+    </div>
+
+    <div style="text-align:center; margin:-12px 0 24px;">
+      <a id="openGallery" href="android/index.html" class="btn btn-ghost" style="padding:10px 18px; font-size:13px;">
+        🔗 <span data-i18n="sec.platforms.openGallery">打开独立预览页 · 大图浏览 / 键盘左右切换</span>
+      </a>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+  </div>
+</section>
+
+<!-- ===================== Features ===================== -->
+<section id="features" style="background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%);">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow"><span class="dot"></span><span data-i18n="sec.features.eyebrow">WHY GILES</span></span>
+      <h2 data-i18n="sec.features.title">为什么选择 Giles</h2>
+      <p data-i18n="sec.features.sub">从内核到 UI，从协议到上架——一切为了打造属于你的下一代代理客户端。</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📱</div>
+        <h3 data-i18n="feat.f1.t">全平台覆盖</h3>
+        <p data-i18n="feat.f1.d">Android、iOS、macOS、Windows 一套代码原生交付，未来可平滑扩展 Linux 与 Web。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3 data-i18n="feat.f2.t">Flutter + sing-box</h3>
+        <p data-i18n="feat.f2.d">Dart + Flutter 高性能渲染 + sing-box C 核 FFI 桥接，性能与体验两不妥协。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔌</div>
+        <h3 data-i18n="feat.f3.t">sing-box 全协议</h3>
+        <p data-i18n="feat.f3.d">VMess / VLESS / Trojan / Shadowsocks / Hysteria2 / TUIC / WireGuard / Naïve 等全支持。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎨</div>
+        <h3 data-i18n="feat.f4.t">可深度定制</h3>
+        <p data-i18n="feat.f4.d">品牌、UI、协议包装、订阅协议、路由规则、签名证书、商店元数据均可按需定制。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📦</div>
+        <h3 data-i18n="feat.f5.t">完整源码交付</h3>
+        <p data-i18n="feat.f5.d">客户版本附带完整 Flutter 源码、构建脚本与 CI 配置，归属客户所有。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🚀</div>
+        <h3 data-i18n="feat.f6.t">上架一条龙</h3>
+        <p data-i18n="feat.f6.d">App Store / Google Play / Mac App Store / Microsoft Store / 自有分发——我们都能搞定。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Protocols ===================== -->
+<section id="protocols">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow"><span class="dot"></span><span data-i18n="sec.proto.eyebrow">FULL SING-BOX PROTOCOLS</span></span>
+      <h2 data-i18n="sec.proto.title">支持 sing-box 全部协议</h2>
+      <p data-i18n="sec.proto.sub">所有 sing-box 已支持的入站 / 出站 / 传输方式，均已通过集成验证。</p>
+    </div>
+    <div class="protocols">
+      <span class="proto">VMess</span>
+      <span class="proto">VLESS <small style="opacity:.6">(Reality · XTLS Vision)</small></span>
+      <span class="proto">Trojan</span>
+      <span class="proto">Shadowsocks <small style="opacity:.6">(SIP002 · 2022)</small></span>
+      <span class="proto">Hysteria</span>
+      <span class="proto">Hysteria2</span>
+      <span class="proto">TUIC</span>
+      <span class="proto">WireGuard</span>
+      <span class="proto">NaïveProxy</span>
+      <span class="proto">Brook</span>
+      <span class="proto">ShadowTLS</span>
+      <span class="proto">SSH</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Custom Dev ===================== -->
+<section id="custom">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow"><span class="dot"></span><span data-i18n="sec.custom.eyebrow">CUSTOM DEVELOPMENT</span></span>
+      <h2 data-i18n="sec.custom.title">定制开发服务</h2>
+      <p data-i18n="sec.custom.sub">从原型设计到上架分发，提供 Giles VPN 客户端的全栈定制开发。</p>
+    </div>
+
+    <div class="dev-grid">
+      <div class="dev-card">
+        <h4 data-i18n="dev.c1.t">① 品牌定制</h4>
+        <p data-i18n="dev.c1.d">Logo、启动屏、主题色、应用名、包名、签名证书、商店素材——全套品牌资产。</p>
+      </div>
+      <div class="dev-card">
+        <h4 data-i18n="dev.c2.t">② UI / UX 定制</h4>
+        <p data-i18n="dev.c2.d">界面风格、动效、交互流程、多语言适配，按你的产品语言重新设计。</p>
+      </div>
+      <div class="dev-card">
+        <h4 data-i18n="dev.c3.t">③ 功能定制</h4>
+        <p data-i18n="dev.c3.d">新增协议包装、私有订阅协议、专属路由规则、内置 DNS、广告过滤策略。</p>
+      </div>
+      <div class="dev-card">
+        <h4 data-i18n="dev.c4.t">④ 服务端对接</h4>
+        <p data-i18n="dev.c4.d">自建订阅服务、支付系统、激活码、设备授权、用户中心——端到端集成。</p>
+      </div>
+      <div class="dev-card">
+        <h4 data-i18n="dev.c5.t">⑤ 上架分发</h4>
+        <p data-i18n="dev.c5.d">App Store / Google Play / Mac App Store / Microsoft Store / 官网分发全流程。</p>
+      </div>
+      <div class="dev-card">
+        <h4 data-i18n="dev.c6.t">⑥ 运维支持</h4>
+        <p data-i18n="dev.c6.d">内核升级、协议适配、安全审计、长期技术支持——可签维保合约。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta" id="contact">
+  <div class="container">
+    <h2 data-i18n="cta.title">准备好打造你的专属 VPN 客户端了吗？</h2>
+    <p data-i18n="cta.sub">通过 Telegram 联系作者，获取定制方案、报价与交付时间表。</p>
+    <a href="https://t.me/tallotang" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:16px; padding:16px 28px;">
+      <span data-i18n="cta.button">立即联系 @tallotang</span>
+    </a>
+    <div class="tg-card">
+      <div class="tg-avatar">T</div>
+      <div style="text-align:start;">
+        <div class="tg-handle">@tallotang</div>
+        <div class="tg-label" data-i18n="cta.card.lab">Telegram · 24h 内首次回复</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="brand">
+      <span class="brand-logo">🪔</span>
+      <span>
+        Giles VPN GUI
+        <small data-i18n="brand.tag">GILES VPN GUI · Giles 客户端</small>
+      </span>
+    </div>
+    <div data-i18n="footer.copy">© Giles VPN GUI. 保留所有权利。</div>
+  </div>
+</footer>
+
+<!-- ===================== i18n + Gallery script ===================== -->
+<script>
+  /* -----------------------------------------------
+     i18n strings
+  ----------------------------------------------- */
+  const I18N = {
+    "zh-CN": {
+      "brand.tag": "GILES VPN GUI · Giles 客户端",
+      "nav.platforms": "平台预览",
+      "nav.features": "核心特性",
+      "nav.protocols": "协议",
+      "nav.custom": "定制开发",
+      "nav.cta": "商务洽谈",
+      "hero.eyebrow": "Flutter · sing-box · 全平台",
+      "hero.title.l1": "一点即通的",
+      "hero.title.l2": "跨端 VPN 体验",
+      "hero.sub": "基于 Flutter 跨端框架 + sing-box 内核，原生覆盖 Android、iOS、macOS、Windows，支持 sing-box 全部协议。可深度定制、可交付源码、可上架分发的现代化代理客户端。",
+      "hero.cta.primary": "立即洽谈定制",
+      "hero.cta.secondary": "查看界面预览",
+      "hero.stat1.lab": "原生平台",
+      "hero.stat2.lab": "支持的协议",
+      "hero.stat3.lab": "源码交付",
+      "hero.stat4.lab": "首响",
+      "sec.platforms.eyebrow": "PLATFORM PREVIEW",
+      "sec.platforms.title": "四大平台，原生体验",
+      "sec.platforms.sub": "一套 Flutter 代码，同时输出 Android、iOS、macOS、Windows 四端应用。",
+      "sec.platforms.openGallery": "打开独立预览页 · 大图浏览 / 键盘左右切换",
+      "sec.features.eyebrow": "WHY GILES",
+      "sec.features.title": "为什么选择 Giles",
+      "sec.features.sub": "从内核到 UI，从协议到上架——一切为了打造属于你的下一代代理客户端。",
+      "feat.f1.t": "全平台覆盖", "feat.f1.d": "Android、iOS、macOS、Windows 一套代码原生交付，未来可平滑扩展 Linux 与 Web。",
+      "feat.f2.t": "Flutter + sing-box", "feat.f2.d": "Dart + Flutter 高性能渲染 + sing-box C 核 FFI 桥接，性能与体验两不妥协。",
+      "feat.f3.t": "sing-box 全协议", "feat.f3.d": "VMess / VLESS / Trojan / Shadowsocks / Hysteria2 / TUIC / WireGuard / Naïve 等全支持。",
+      "feat.f4.t": "可深度定制", "feat.f4.d": "品牌、UI、协议包装、订阅协议、路由规则、签名证书、商店元数据均可按需定制。",
+      "feat.f5.t": "完整源码交付", "feat.f5.d": "客户版本附带完整 Flutter 源码、构建脚本与 CI 配置，归属客户所有。",
+      "feat.f6.t": "上架一条龙", "feat.f6.d": "App Store / Google Play / Mac App Store / Microsoft Store / 自有分发——我们都能搞定。",
+      "sec.proto.eyebrow": "FULL SING-BOX PROTOCOLS",
+      "sec.proto.title": "支持 sing-box 全部协议",
+      "sec.proto.sub": "所有 sing-box 已支持的入站 / 出站 / 传输方式，均已通过集成验证。",
+      "sec.custom.eyebrow": "CUSTOM DEVELOPMENT",
+      "sec.custom.title": "定制开发服务",
+      "sec.custom.sub": "从原型设计到上架分发，提供 Giles VPN 客户端的全栈定制开发。",
+      "dev.c1.t": "① 品牌定制", "dev.c1.d": "Logo、启动屏、主题色、应用名、包名、签名证书、商店素材——全套品牌资产。",
+      "dev.c2.t": "② UI / UX 定制", "dev.c2.d": "界面风格、动效、交互流程、多语言适配，按你的产品语言重新设计。",
+      "dev.c3.t": "③ 功能定制", "dev.c3.d": "新增协议包装、私有订阅协议、专属路由规则、内置 DNS、广告过滤策略。",
+      "dev.c4.t": "④ 服务端对接", "dev.c4.d": "自建订阅服务、支付系统、激活码、设备授权、用户中心——端到端集成。",
+      "dev.c5.t": "⑤ 上架分发", "dev.c5.d": "App Store / Google Play / Mac App Store / Microsoft Store / 官网分发全流程。",
+      "dev.c6.t": "⑥ 运维支持", "dev.c6.d": "内核升级、协议适配、安全审计、长期技术支持——可签维保合约。",
+      "cta.title": "准备好打造你的专属 VPN 客户端了吗？",
+      "cta.sub": "通过 Telegram 联系作者，获取定制方案、报价与交付时间表。",
+      "cta.button": "立即联系 @tallotang",
+      "cta.card.lab": "Telegram · 24h 内首次回复",
+      "footer.copy": "© Giles VPN GUI. 保留所有权利。",
+      "shot.cap": "界面截图 · 仅用于 UI 演示"
+    },
+    "en": {
+      "brand.tag": "GILES VPN GUI · Cross-platform client",
+      "nav.platforms": "Platforms",
+      "nav.features": "Features",
+      "nav.protocols": "Protocols",
+      "nav.custom": "Custom Dev",
+      "nav.cta": "Contact",
+      "hero.eyebrow": "Flutter · sing-box · All platforms",
+      "hero.title.l1": "A next-gen",
+      "hero.title.l2": "cross-platform VPN",
+      "hero.sub": "Built with Flutter and the sing-box universal proxy core. Native on Android, iOS, macOS, and Windows — with full support for every sing-box protocol. Deeply customizable, source-deliverable, store-ready.",
+      "hero.cta.primary": "Start your custom build",
+      "hero.cta.secondary": "View screenshots",
+      "hero.stat1.lab": "Native platforms",
+      "hero.stat2.lab": "Protocols",
+      "hero.stat3.lab": "Source delivered",
+      "hero.stat4.lab": "First reply",
+      "sec.platforms.eyebrow": "PLATFORM PREVIEW",
+      "sec.platforms.title": "Four platforms, one codebase",
+      "sec.platforms.sub": "A single Flutter codebase compiles natively to Android, iOS, macOS, and Windows.",
+      "sec.platforms.openGallery": "Open full-screen gallery · browse & switch with arrow keys",
+      "sec.features.eyebrow": "WHY GILES",
+      "sec.features.title": "Why choose Giles",
+      "sec.features.sub": "From core to UI, from protocols to store submission — everything you need to ship a next-gen proxy client.",
+      "feat.f1.t": "All platforms", "feat.f1.d": "Android, iOS, macOS, Windows — one codebase, native UX. Linux & Web coming soon.",
+      "feat.f2.t": "Flutter + sing-box", "feat.f2.d": "Dart + Flutter rendering, FFI bridge to the sing-box C core. Performance and polish.",
+      "feat.f3.t": "Full sing-box protocols", "feat.f3.d": "VMess, VLESS, Trojan, Shadowsocks, Hysteria2, TUIC, WireGuard, Naïve — everything sing-box supports.",
+      "feat.f4.t": "Deeply customizable", "feat.f4.d": "Branding, UI, protocol wrappers, private subscription schemes, routing rules, signing, store metadata — anything you need.",
+      "feat.f5.t": "Full source delivery", "feat.f5.d": "Client deliveries include the complete Flutter source, build scripts and CI configuration — yours to own.",
+      "feat.f6.t": "Store-ready", "feat.f6.d": "App Store, Google Play, Mac App Store, Microsoft Store, self-hosted distribution — we handle it all.",
+      "sec.proto.eyebrow": "FULL SING-BOX PROTOCOLS",
+      "sec.proto.title": "Every sing-box protocol, out of the box",
+      "sec.proto.sub": "All inbounds, outbounds and transports supported by sing-box have been integration-tested.",
+      "sec.custom.eyebrow": "CUSTOM DEVELOPMENT",
+      "sec.custom.title": "Custom development services",
+      "sec.custom.sub": "From prototype to store submission — full-stack custom development for the Giles VPN client.",
+      "dev.c1.t": "① Branding", "dev.c1.d": "Logo, splash, theme, app name, package id, signing certificates, store assets — everything.",
+      "dev.c2.t": "② UI / UX", "dev.c2.d": "Design language, motion, interaction flow, multi-language — tailored to your product voice.",
+      "dev.c3.t": "③ Features", "dev.c3.d": "Custom protocol wrappers, private subscription schemes, exclusive routing rules, built-in DNS, ad filtering.",
+      "dev.c4.t": "④ Server integration", "dev.c4.d": "Subscription services, payments, license activation, device authorization, user portal — end-to-end.",
+      "dev.c5.t": "⑤ Distribution", "dev.c5.d": "App Store, Google Play, Mac App Store, Microsoft Store, self-hosted web distribution — full pipeline.",
+      "dev.c6.t": "⑥ Ops & support", "dev.c6.d": "Core upgrades, protocol adaptation, security audits, long-term support — maintenance contracts available.",
+      "cta.title": "Ready to ship your own VPN client?",
+      "cta.sub": "Reach out via Telegram for a tailored proposal, quote and delivery timeline.",
+      "cta.button": "Contact @tallotang now",
+      "cta.card.lab": "Telegram · First reply within 24h",
+      "footer.copy": "© Giles VPN GUI. All rights reserved.",
+      "shot.cap": "UI preview · demo data only"
+    },
+    "ar": {
+      "brand.tag": "GILES VPN GUI · عميل متعدد المنصات",
+      "nav.platforms": "المنصات",
+      "nav.features": "الميزات",
+      "nav.protocols": "البروتوكولات",
+      "nav.custom": "تطوير مخصص",
+      "nav.cta": "تواصل",
+      "hero.eyebrow": "Flutter · sing-box · جميع المنصات",
+      "hero.title.l1": "عميل VPN",
+      "hero.title.l2": "من الجيل التالي",
+      "hero.sub": "مبني بـ Flutter ويعتمد على نواة sing-box العالمية. يعمل بشكل أصلي على Android وiOS وmacOS وWindows — مع دعم كامل لجميع بروتوكولات sing-box. قابل للتخصيص العميق، مع تسليم الشفرة، جاهز للنشر في المتاجر.",
+      "hero.cta.primary": "ابدأ مشروعك المخصص",
+      "hero.cta.secondary": "عرض اللقطات",
+      "hero.stat1.lab": "منصات أصلية",
+      "hero.stat2.lab": "البروتوكولات",
+      "hero.stat3.lab": "تسليم الشفرة",
+      "hero.stat4.lab": "أول رد",
+      "sec.platforms.eyebrow": "PLATFORM PREVIEW",
+      "sec.platforms.title": "أربع منصات، قاعدة شفرة واحدة",
+      "sec.platforms.sub": "تُترجم قاعدة شفرة Flutter واحدة إلى تطبيقات أصلية على Android وiOS وmacOS وWindows.",
+      "sec.platforms.openGallery": "افتح صفحة المعاينة الكاملة · تصفح بمفاتيح الأسهم",
+      "sec.features.eyebrow": "WHY GILES",
+      "sec.features.title": "لماذا Giles",
+      "sec.features.sub": "من النواة إلى الواجهة، ومن البروتوكولات إلى النشر في المتاجر — كل ما تحتاجه لإطلاق عميل بروكسي من الجيل التالي.",
+      "feat.f1.t": "جميع المنصات", "feat.f1.d": "Android وiOS وmacOS وWindows — شفرة واحدة، تجربة أصلية. Linux والويب قريباً.",
+      "feat.f2.t": "Flutter + sing-box", "feat.f2.d": "عرض Dart + Flutter، جسر FFI إلى نواة sing-box المكتوبة بـ C. أداء وأناقة.",
+      "feat.f3.t": "جميع بروتوكولات sing-box", "feat.f3.d": "VMess وVLESS وTrojan وShadowsocks وHysteria2 وTUIC وWireGuard وNaïve — كل ما يدعمه sing-box.",
+      "feat.f4.t": "تخصيص عميق", "feat.f4.d": "العلامة التجارية، الواجهة، أغلفة البروتوكول، مخططات الاشتراك الخاصة، قواعد التوجيه، التواقيع، بيانات المتاجر — أي شيء تحتاجه.",
+      "feat.f5.t": "تسليم شفرة كامل", "feat.f5.d": "النسخ المسلّمة تتضمن شفرة Flutter الكاملة وسكربتات البناء وإعدادات CI — ملك لك.",
+      "feat.f6.t": "جاهز للنشر", "feat.f6.d": "App Store وGoogle Play وMac App Store وMicrosoft Store والتوزيع الذاتي — نتكفل بكل شيء.",
+      "sec.proto.eyebrow": "FULL SING-BOX PROTOCOLS",
+      "sec.proto.title": "كل بروتوكولات sing-box، جاهزة للاستخدام",
+      "sec.proto.sub": "جميع المداخل والمخارج وطرق النقل التي يدعمها sing-box تم اختبار تكاملها.",
+      "sec.custom.eyebrow": "CUSTOM DEVELOPMENT",
+      "sec.custom.title": "خدمات التطوير المخصص",
+      "sec.custom.sub": "من النموذج الأولي إلى النشر في المتاجر — تطوير مخصص كامل لعميل Giles VPN.",
+      "dev.c1.t": "① العلامة التجارية", "dev.c1.d": "شعار، شاشة بداية، قالب، اسم تطبيق، معرّف حزمة، شهادات توقيع، أصول متاجر — كل شيء.",
+      "dev.c2.t": "② واجهة المستخدم", "dev.c2.d": "لغة تصميم، حركات، تدفق تفاعل، تعدد لغات — مصممة حسب صوت منتجك.",
+      "dev.c3.t": "③ الميزات", "dev.c3.d": "أغلفة بروتوكول مخصصة، مخططات اشتراك خاصة، قواعد توجيه حصرية، DNS مدمج، تصفية إعلانات.",
+      "dev.c4.t": "④ تكامل الخادم", "dev.c4.d": "خدمات اشتراك، مدفوعات، تفعيل ترخيص، تخويل أجهزة، بوابة مستخدم — تكامل شامل.",
+      "dev.c5.t": "⑤ التوزيع", "dev.c5.d": "App Store وGoogle Play وMac App Store وMicrosoft Store والتوزيع الذاتي — خط أنابيب كامل.",
+      "dev.c6.t": "⑥ التشغيل والدعم", "dev.c6.d": "ترقيات النواة، تكييف البروتوكولات، تدقيق أمني، دعم طويل الأمد — عقود صيانة متاحة.",
+      "cta.title": "هل أنت مستعد لإطلاق عميل VPN خاص بك؟",
+      "cta.sub": "تواصل عبر تيليجرام للحصول على عرض مخصص، سعر وخط زمني للتسليم.",
+      "cta.button": "تواصل مع @tallotang الآن",
+      "cta.card.lab": "تيليجرام · أول رد خلال 24 ساعة",
+      "footer.copy": "© Giles VPN GUI. جميع الحقوق محفوظة.",
+      "shot.cap": "لمحة عن الواجهة · بيانات للعرض فقط"
+    }
+  };
+
+  /* -----------------------------------------------
+     Language switcher
+  ----------------------------------------------- */
+  function applyLang(lang) {
+    const dict = I18N[lang] || I18N["zh-CN"];
+    document.documentElement.lang = lang;
+    document.documentElement.dataset.lang = lang;
+    document.documentElement.dir = (lang === "ar") ? "rtl" : "ltr";
+
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key] != null) el.textContent = dict[key];
+    });
+
+    document.querySelectorAll("[data-lang-btn]").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.langBtn === lang);
+    });
+
+    try { localStorage.setItem("giles.lang", lang); } catch (e) {}
+    // Re-render gallery captions if needed
+    renderGallery(currentPlatform);
+  }
+
+  document.querySelectorAll("[data-lang-btn]").forEach(btn => {
+    btn.addEventListener("click", () => applyLang(btn.dataset.langBtn));
+  });
+
+  /* -----------------------------------------------
+     Platform gallery
+  ----------------------------------------------- */
+  let currentPlatform = "android";
+  const PLATFORM_FILES = {
+    android: ["1.png","2.jpg","3.jpg","4.jpg","5.png","6.png","7.png","8.png","9.png","10.png","11.png"],
+    ios:     ["1.png","2.png","3.png","4.png","5.png","6.png","7.png","8.png","9.png"],
+    mac:     ["1.png","2.png","3.png","4.png","5.png","6.png","7.png","8.png","9.png","10.png","11.png","12.png"],
+    win:     ["1.png","2.png","3.png","4.png","5.png","6.png","7.png","8.png","9.png"]
+  };
+
+  function renderGallery(platform) {
+    currentPlatform = platform;
+    const files = PLATFORM_FILES[platform] || [];
+    const cap = (I18N[document.documentElement.dataset.lang] || I18N["zh-CN"])["shot.cap"];
+    const gal = document.getElementById("gallery");
+
+    // Platform-specific gallery class
+    gal.className = `gallery gallery-${platform}`;
+
+    if (platform === "mac") {
+      gal.innerHTML = files.map((f, i) => `
+        <div class="shot">
+          <div class="shot-body">
+            <div class="shot-bar">
+              <span class="dot-red"></span>
+              <span class="dot-yellow"></span>
+              <span class="dot-green"></span>
+            </div>
+            <img src="${platform}/${f}" alt="macOS screenshot ${i+1}"
+                 onerror="this.parentElement.parentElement.style.display='none'" loading="lazy" />
+          </div>
+          <div class="shot-cap">${cap} · ${i+1}/${files.length}</div>
+        </div>`).join("");
+    } else if (platform === "win") {
+      gal.innerHTML = files.map((f, i) => `
+        <div class="shot">
+          <div class="shot-body">
+            <div class="shot-bar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5">
+                <path d="M3 5v14h7v-7h5V5H3zm8 0h7v7h-4v3h4V5h-7z"/>
+              </svg>
+              <span>Giles VPN GUI — Windows</span>
+            </div>
+            <img src="${platform}/${f}" alt="Windows screenshot ${i+1}"
+                 onerror="this.parentElement.parentElement.style.display='none'" loading="lazy" />
+          </div>
+          <div class="shot-cap">${cap} · ${i+1}/${files.length}</div>
+        </div>`).join("");
+    } else {
+      // Android / iOS: compact vertical cards
+      gal.innerHTML = files.map((f, i) => `
+        <div class="shot">
+          <div class="shot-img-wrap">
+            <img src="${platform}/${f}" alt="${platform} screenshot ${i+1}"
+                 onerror="this.parentElement.parentElement.style.display='none'" loading="lazy" />
+          </div>
+          <div class="shot-cap">${cap} · ${i+1}/${files.length}</div>
+        </div>`).join("");
+    }
+  }
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      renderGallery(tab.dataset.platform);
+      // Sync the "open gallery page" link to the selected platform
+      const link = document.getElementById("openGallery");
+      if (link) link.setAttribute("href", `${tab.dataset.platform}/index.html`);
+    });
+  });
+
+  /* -----------------------------------------------
+     Boot
+  ----------------------------------------------- */
+  const saved = (() => { try { return localStorage.getItem("giles.lang"); } catch (e) { return null; } })();
+  applyLang(saved && I18N[saved] ? saved : "zh-CN");
+</script>
+</body>
+</html>
