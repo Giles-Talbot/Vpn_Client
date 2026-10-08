@@ -117,7 +117,7 @@
 
 ### 联系方式
 
-- 💬 Telegram：**[@tallotang](https://t.me/tallotang)** （点击直达）
+- 💬 Telegram：**[@jallotang](https://t.me/jallotang)** （点击直达）
 - 🤝 商务洽谈 / 报价：Telegram 上线更快回复
 
 ---
