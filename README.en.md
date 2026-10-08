@@ -118,7 +118,7 @@ I offer **full-stack custom development** for the Giles VPN client — from prot
 
 ### Contact
 
-- 💬 Telegram: **[@tallotang](https://t.me/tallotang)** (fastest response)
+- 💬 Telegram: **[@jallotang](https://t.me/jallotang)** (fastest response)
 - 🤝 Quotes & business: please reach out via Telegram
 
 ---
